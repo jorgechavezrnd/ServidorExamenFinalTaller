@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>Historial de escalares</title>
+    <link href="/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet" media="screen"/>
+    <link href="/css/Admin.css" th:href="@{/css/Admin.css}" rel="stylesheet" media="screen"/>
+</head>
+<body id="listas">
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" th:href="${'/user/home'}">Inicio</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div>
+        <h3>Nombre: </h3>
+        <p th:text="${user.name}">name</p>
+        <h3>Historial:</h3>
+        <table class="table table-striped">
+            <tr>
+                <th>Cantidad</th>
+                <th>Tipo</th>
+                <th>Fecha de registro</th>
+
+            </tr>
+            <tr th:each="escalar : ${escalaresList}">
+                <td th:text="${escalar.cantidad}">cantidad</td>
+                <td th:text="${escalar.tipo}">tipo</td>
+                <td th:text="${escalar.fecha_registro}">fechaRegistro</td>
+
+            </tr>
+        </table>
+
+    </div>
+</div>
+</body>
+</html>

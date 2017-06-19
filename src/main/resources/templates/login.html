@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>Login</title>
+		<link href="/css/Estilo.css" th:href="@{/css/Estilo.css}" rel="stylesheet" media="screen"/>
+        <link href="/css/login.css" th:href="@{/css/login.css}" rel="stylesheet" media="screen"/>
+        <link href="/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet" media="screen"/>
+	</head>
+	<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" th:href="${'/registration'}">Crear una cuenta</a>
+            </div>
+        </div>
+
+    </nav>
+        <div id="titulo" class="centralizar">
+		<p  id="titleB">Balance fitness tracker</p>
+        </div>
+		<form class="centralizar" th:action="@{/login}" method="POST">
+			<fieldset class="reducirFormulario">
+                <br/><br/>
+				<input class="centralizar" th:placeholder="Email" type="text" id="email" name="email"  /> <br/><br/>
+				<input class="centralizar" th:placeholder="Password" type="password" id="password" name="password" /> <br /><br/>
+				<div th:if="${param.error}">
+					<p id="mensajedeerror">Email o Contraseña invalidos</p>
+				</div>
+                <button type="submit" class="btn">Login</button>
+				 <br /><br/>
+                <a th:href="${'/forgotpassword'}">¿Olvidó su contraseña?</a>
+			</fieldset>
+
+		</form>
+	</body>
+</html>

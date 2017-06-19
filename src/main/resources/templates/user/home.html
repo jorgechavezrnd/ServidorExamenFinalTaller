@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>Inicio</title>
+    <link href="/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet" media="screen"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCi1Rsl51hkfmrTe9-YShmlWMGn3bknbMA&amp;callback=myMap"></script>
+    <link href="/css/homeLimited.css" th:href="@{/css/homeLimited.css}" rel="stylesheet" media="screen"/>
+</head>
+<body >
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <p class="navbar-brand">Balance Fitness Tracker</p>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+
+                <li><a th:href="${'/user/profile/'}">Ver perfil</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Historiales<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="${'/user/CaloriesHistory'}" >Historial de calorias</a></li>
+                        <li><a th:href="${'/user/PulseHistory'}" >Historial de pulsaciones</a></li>
+                        <li><a th:href="${'/user/StepsHistory'}" >Historial de distancia</a></li>
+
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Locaciones<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="${'/user/Map'}">Locaciones</a></li>
+                        <li><a th:href="${'/user/LastLocation'}">Última locacion</a></li>
+                        <li><a th:href="${'/user/dayLocations'}" >Locaciones del día</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Escalares<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="${'/user/getEscalares'}">Escalares de hoy</a></li>
+                        <li><a th:href="${'/user/getEscalaresHistory'}">Historial de escalares</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Opciones<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="${'/user/edit/'}">Editar Perfil</a></li>
+                        <li><a th:href="${'/user/changepassword/'}">Cambiar contraseña</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a th:href="${'/logout'}">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+
+
+    <script th:inline="javascript">
+        var idValue = [[${id}]];
+
+        var metaSValue = [[${metaStart}]];
+        var metaFValue = [[${metaFinish}]];
+        var maximum = [[${max}]];
+
+        function updateSteps(){
+            $.getJSON( "/getSteps/" + idValue, function( data ) {
+                $('#steps').html(data.steps);
+            });
+        }
+
+        function updateCalories(){
+            $.getJSON( "/getCalories/" + idValue, function( data ) {
+                $('#calories').html(data.calories);
+            });
+        }
+
+        function updateDistance(){
+            $.getJSON( "/getDistance/" + idValue, function( data ) {
+                $('#distance').html(data.distance);
+            });
+        }
+
+        function updatePulse(){
+            $.getJSON( "/getPulse/" + idValue, function( data ) {
+                $('#bpm').html(data.bpm);
+                var bpm=data.bpm;
+                if(data.bpm > maximum){
+                        $('#bpm').removeClass("label-warning")
+                        $('#bpm').removeClass("label-success")
+                        $('#bpm').addClass("label-danger");
+                }else{
+                    if(data.bpm >= metaSValue){
+                        if(!(data.bpm>metaFValue)){
+                            $('#bpm').removeClass("label-warning")
+                            $('#bpm').removeClass("label-danger")
+                            $('#bpm').addClass("label-success");
+                        }else{
+                             $('#bpm').removeClass("label-success")
+                             $('#bpm').removeClass("label-danger")
+                             $('#bpm').addClass("label-warning");
+
+                        }
+                    }else{
+                             $('#bpm').removeClass("label-success")
+                             $('#bpm').removeClass("label-danger")
+                             $('#bpm').addClass("label-warning");
+                    }
+                }
+            });
+        }
+
+        var latitudes = [];
+        var longitudes = [];
+        var titulos = [];
+
+        function updateMap() {
+            $.getJSON( "/getActualLocations/" + idValue, function( data ) {
+                console.log(data);
+                latitudes = data[0];
+                longitudes = data[1];
+                titulos = data[2];
+            });
+            eliminarMarkers();
+            dibujarMarkers();
+        }
+
+        var mapaUpdate = 0;
+
+        setInterval(function(){
+            updateSteps();
+            updateDistance();
+            updateCalories();
+            updatePulse();
+            mapaUpdate++;
+            if(mapaUpdate > 4) {
+                updateMap();
+                mapaUpdate = 0;
+            }
+        }, 1000);
+
+        var map;
+        var marker;
+        var markers = [];
+
+        function drawMap(map, latlng, titulo) {
+            marker = new google.maps.Marker({
+            position: latlng,
+            map: map,
+            title: titulo
+            });
+        }
+
+        function dibujarMarkers() {
+            /*<![CDATA[*/
+
+            for (var i = 0; i < titulos.length; i++) {
+                var defaultLatLng = new google.maps.LatLng(latitudes[i], longitudes[i]);
+                drawMap(map, defaultLatLng, titulos[i]);
+                markers.push(marker);
+            }
+
+            /*]]>*/
+        }
+
+        function eliminarMarkers() {
+            /*<![CDATA[*/
+
+            for (var i = 0; i < markers.length; i++) {
+                markers[i].setMap(null);
+            }
+
+            markers = [];
+            /*]]>*/
+        }
+
+        function init_map() {
+            var centro = new google.maps.LatLng(0.0, 0.0);
+            var options = {zoom: 3, center: centro};
+
+            map = new google.maps.Map(document.getElementById("map-canvas"), options);
+            updateMap();
+        }
+
+        window.onload = function() {
+            init_map();
+        }
+
+
+    </script>
+
+    <div class="row">
+    <div class="col-sm-4 col-md-3">
+        <div class="thumbnail">
+            <div class="caption">
+                <img src="/images/steps.png" alt="steps" width="242" height="200"></img>
+                <h3>Pasos: <span id="steps" class="label label-info" th:text="${countSteps}">countSteps</span></h3>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 col-md-3">
+            <div class="thumbnail">
+                <div class="caption">
+                    <img src="/images/distance.jpg" alt="distance" width="242" height="200"></img>
+                    <h3>Distancia: <span id="distance" class="label label-info" th:text="${countDistance}">countDistance</span></h3>
+
+                </div>
+            </div>
+        </div>
+    <div class="col-sm-4 col-md-3">
+        <div class="thumbnail">
+            <div class="caption">
+                <img src="/images/calories.jpg" alt="calories" width="242" height="200"></img>
+                <h3>Calorias: <span id="calories" class="label label-info" th:text="${countCalories}">countCalories</span></h3>
+
+            </div>
+        </div>
+    </div>
+        <div class="col-sm-4 col-md-3">
+            <div class="thumbnail">
+                <div class="caption">
+                    <img src="/images/pulse.png" alt="pulse" width="242" height="200"></img>
+                    <h3>Ritmo cardiaco: <span id="bpm" class="label" th:text="${countBpm}">countBpm</span></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h1 class="panel-title">Locaciones del día</h1>
+        </div>
+        <div class="panel-body">
+            <div id="map-canvas" style="width:100%;height:250px;margin: 0 auto 0 auto;"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

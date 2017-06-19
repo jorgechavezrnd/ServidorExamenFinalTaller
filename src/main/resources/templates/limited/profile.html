@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>Perfil</title>
+    <link href="/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet" media="screen"/>
+    <link href="/css/editProfile.css" th:href="@{/css/editProfile.css}" rel="stylesheet" media="screen"/>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+
+            <a class="navbar-brand" th:href="${'/user/home'}">Inicio</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div>
+        <label> Nombre: </label>
+        <p th:text="${user.name}">name</p>
+        <label>Email:</label>
+        <p th:text="${user.email}">email</p>
+        <label>Edad:</label>
+        <p th:text="${user.age}">age</p>
+        <label>Fecha de nacimiento:</label>
+        <p th:text="${user.birthday}">birthday</p>
+        <label>Altura:</label>
+        <p th:text="${user.heigth}">heigth</p>
+        <label>Peso:</label>
+        <p th:text="${user.weigth}">weigth</p>
+        <label>Modelo de banda:</label>
+        <p th:text="${user.getTerminal()==null?'':user.getTerminal().getBandModel().getName()}">Model band</p>
+        <label>Serial:</label>
+        <p th:text="${user.getTerminal()==null?'':user.getTerminal().getSerial()}">Serial</p>
+
+    </div>
+</div>
+</body>
+</html>
